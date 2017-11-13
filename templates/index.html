@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myapp">
+<head>
+  <meta charset="UTF-8">
+  <title>Riemann config builder</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <style>
+  .ace_editor { height: 200px;}
+</style>
+</head>
+<body ng-controller="MainCtrl">
+  {% raw %}
+  <div class="container">
+    <h1>Index</h1>
+
+    <div class="row">
+      <div class="col-lg-8 col-md-8 col-sm-8"><div ui-ace="{
+        useWrapMode : true,
+        theme: 'iplastic',
+        $blockScrolling: 'Infinity',
+        mode: 'clojure'}" ng-model="config">
+      </div></div>
+      <div class="col-lg-4 col-md-4 col-sm-4">
+
+
+
+        <button class="btn btn-default" ng-click="setCode(c)" ng-repeat="c in sampleConfigs">{{ c.name}}</button>
+        <p>{{ displayedHelpText }}</p>
+        </div>
+      </div>
+
+
+      <button class="btn btn-primary" ng-click="save()">Save and validate config</button> <--- this will take ~5 seconds
+
+      <pre>{{ saveOutput }}</pre>
+      <button class="btn btn-success" ng-click="startRiemann()">Start/SIGHUP riemann with config</button>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Send metric</div>
+        <div class="panel-body">
+          <form ng-submit="sendMetric()">
+            <div class="form-group">
+              <label>Service</label>
+              <input type="text" class="form-control" ng-model="metric.service">
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" class="form-control" ng-model="metric.state">
+            </div>
+            <div class="form-group">
+              <label>Metric (float)</label>
+              <input type="text" class="form-control" ng-model="metric.metric_f">
+            </div>
+            <button class="btn btn-primary">Send metric</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="panel panel-default">
+        <div class="panel-heading">Alerts</div>
+        <div class="panel-body">
+          <button class="btn btn-warning pull-right" ng-click="clearAlerts()">Clear</button>
+          <table class="table table-condensed table-striped">
+            <tr ng-repeat="alert in alerts">
+              <td>{{ alert | json }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <script type="text/javascript" src="/static/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    <script type="text/javascript" src="/static/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
+
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+    <script type="text/javascript" src="/static/ui-ace.min.js"></script>
+    <script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCLNvtkCvzBWjXGMxVF1W5B5sSyiWpMENY",
+    authDomain: "riemann-tester.firebaseapp.com",
+    databaseURL: "https://riemann-tester.firebaseio.com",
+    projectId: "riemann-tester",
+    storageBucket: "",
+    messagingSenderId: "872613186057"
+  };
+  firebase.initializeApp(config);
+</script>
+    <script src="/static/app.js"></script>
+  {% endraw %}
+  </body>
+  </html>

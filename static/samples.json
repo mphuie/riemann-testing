@@ -1,0 +1,45 @@
+[
+  {
+    "name": "where",
+    "code": "KHdoZXJlIChzZXJ2aWNlICJ0ZXN0IikNCiAgIyhhbGVydCAlKQ0KKQ=="
+  },
+  {
+    "name": "where not",
+    "code": "KHdoZXJlIChub3QgKHNlcnZpY2UgInRlc3QiKSkNCiAgIyhhbGVydCAlKQ0KKQ=="
+  },
+  { 
+    "name": "and",
+    "code": "KHdoZXJlIChhbmQgKHNlcnZpY2UgInRlc3QiKSAoc3RhdGUgImNyaXQiKSkNCiAgICAjKGFsZXJ0ICUpDQop" 
+  },
+  {
+    "name": "changed-state",
+    "code": "KGNoYW5nZWQtc3RhdGUNCiAgICAjKGFsZXJ0ICUpDQogICk=",
+    "helpText": "Only triggers when incoming state is different (any state value) from previous state"
+  },
+  { 
+    "name": "changed-state (init)",
+    "code": "KGNoYW5nZWQtc3RhdGUgezppbml0ICJvayJ9DQogICAgIyhhbGVydCAlKQ0KKQ==",
+    "helpText": "Only triggers when incoming state is different (any state value) from init state"
+  },
+  {
+    "name": "stable (changed-state)",
+    "code": "KGNoYW5nZWQtc3RhdGUNCiAgICAoc3RhYmxlIDYwIDpzdGF0ZQ0KICAgICAgIyhhbGVydCAlKSkp",
+    "helpText": "only triggers when state has changed and is the same for 60 seconds"
+  },
+  {
+    "name": "alert rollup (summarize)",
+    "code": "KHJvbGx1cCA1IDM2MDAgIyhhbGVydCAlKSk=",
+    "helpText": "Replace your alerting clause with this code.  Allows 5 alerts to be sent then summarize any additional for 3600 seconds (1 hour). We'll receive the first four alerts immediately--and at the end of the hour, a single alert with a summary of all the rest"
+  },
+  {
+    "name": "alert throttle (filter)",
+    "code": "KHRocm90dGxlIDUgMzYwMCAjKGFsZXJ0ICUpKQ==",
+    "helpText": "Replace your alerting clause with this code.  Allows the first five events through, then ignores all the rest for an 3600 seconds (1 hour)"
+  },
+  {
+    "name": "stable+throttle",
+    "code": "KHdoZXJlIChzZXJ2aWNlICJ0ZXN0IikNCiAgKHN0YWJsZSA2MCA6c3RhdGUNCiAgICAgICh0aHJvdHRsZSAxIDYwMCAjKGFsZXJ0ICUpKSkNCik=",
+    "helpText": "Alert when state is stable for 60 seconds and only alert once for 10 minutes"
+  }
+
+]
