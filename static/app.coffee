@@ -1,18 +1,19 @@
-app = angular.module 'myapp', ['ui.ace', 'ui.bootstrap', 'firebase']
+app = angular.module 'myapp', ['ui.ace', 'ui.bootstrap', 'firebase', 'toaster']
 
 
 
 
-app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
+app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
+
+  $scope.metricStatus = ''
 
   loopThroughMetrics = (metric, values) ->
     i = 0
     while i < values.length
-      # for each iteration console.log a word
-      # and make a pause after it
       do (i) ->
         setTimeout (->
           console.log values[i]
+          $scope.metricStatus = $scope.metricStatus + '.'
           $http.post '/send-metric', { service: metric, metric_f: values[i] }
           return
         ), 1000 * i
@@ -26,12 +27,6 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
 
   ref = firebase.database().ref().child("alerts")
   $scope.alerts = $firebaseArray(ref)
-
-
-  # $http
-  #   .get '/static/riemann.config'
-  #   .then (resp) ->
-  #     $scope.config = resp.data
 
   $http
     .get '/static/samples.json'
@@ -54,15 +49,30 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
   $scope.sendMetric = ->
     console.log $scope.metric
 
-    $http
-      .post '/send-metric', $scope.metric
+    if $scope.metric.metric_f.indexOf(',') > -1
+      console.log 'comma delim!!!???'
+      values = _.map $scope.metric.metric_f.split(','), (i) ->
+        parseInt(i)
+      $scope.metricStatus = ''
+      loopThroughMetrics $scope.metric.service, values
+    else
+      $http
+        .post '/send-metric', $scope.metric
+        .then ->
+          console.log 'send!'
+        , ->
+          toaster.pop 'error', 'riemann', 'error in metric!'
 
   $scope.clearAlerts = ->
     $http.delete 'https://riemann-tester.firebaseio.com/alerts.json'
 
   $scope.startRiemann = ->
+    toaster.pop 'success', 'riemann', 'starting/restarting riemann...'
     $http.get '/start-riemann'
+
   $scope.save = ->
+
+    toaster.pop 'success', 'riemann', 'testing riemann config...'
 
     $scope.saveOutput = ''
 
@@ -70,8 +80,12 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
       .post '/generate-config', { config: $scope.config }
       .then (resp) ->
         $scope.saveOutput = resp.data.stdout
+        $http.get '/start-riemann'
+          .then ->
+            toaster.pop 'success', 'riemann', 'good, restarting riemann!...'
       , (resp) ->
         $scope.saveOutput = resp.data.stdout
+        toaster.pop 'error', 'riemann', 'config does not validate!'
 
 
   $scope.lookupGraphiteMetric = ->
@@ -84,7 +98,6 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
         values = _.map resp.data[0].datapoints, (i) ->
           i[0]
 
-        console.log values
-
+        $scope.metricStatus = ''
         loopThroughMetrics($scope.metricPath.path, values)
 

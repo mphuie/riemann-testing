@@ -4,14 +4,24 @@
   <meta charset="UTF-8">
   <title>Riemann config builder</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/2.1.0/toaster.css">
   <style>
   .ace_editor { height: 200px;}
 </style>
 </head>
 <body ng-controller="MainCtrl">
+  <toaster-container></toaster-container>
   {% raw %}
   <div class="container">
-    <h1>Index</h1>
+    <h1>Riemann builder</h1>
+    <div class="alert alert-info">
+        How to use this:
+        <ol>
+        <li>Write your config</li>
+        <li>Validate your config</li>
+        <li>Send test events to generate desired alerts</li>
+        </ol>
+    </div>
 
     <div class="row">
       <div class="col-lg-8 col-md-8 col-sm-8"><div ui-ace="{
@@ -30,7 +40,6 @@
       <button class="btn btn-primary" ng-click="save()">Save and validate config</button> <--- this will take ~5 seconds
 
       <pre>{{ saveOutput }}</pre>
-      <button class="btn btn-success" ng-click="startRiemann()">Start/SIGHUP riemann with config</button>
 
       <hr>
       <uib-tabset>
@@ -58,8 +67,10 @@
             <div class="form-group">
               <label>Metric (float)</label>
               <input type="text" class="form-control" ng-model="metric.metric_f">
+              <p class="help-block">Send multiple metrics by providing comma separated values</p>
             </div>
             <button class="btn btn-primary">Send metric</button>
+            <span>{{  metricStatus }}</span>
           </form>
         </div>
       </div>
@@ -72,9 +83,20 @@
         <div class="panel-body">
           <button class="btn btn-warning pull-right" ng-click="clearAlerts()">Clear</button>
           <table class="table table-condensed table-striped">
+              <tbody>
+              <tr>
+                  <th>Timestamp</th>
+                  <th>Service</th>
+                  <th>State</th>
+                  <th>Metric</th>
+              </tr>
+              </tbody>
             <tr ng-repeat="alert in alerts">
+              <td>{{ alert.time*1000 | date:'short' }}</td>
               <td>{{ alert.service }}</td>
+              <td>{{ alert.state }}</td>
               <td>{{ alert.metric }}</td>
+
 
             </tr>
           </table>
@@ -89,7 +111,7 @@
     <script type="text/javascript" src="/static/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/2.1.0/toaster.js"></script>
     <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <script type="text/javascript" src="/static/ui-ace.min.js"></script>
     <script>
