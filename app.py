@@ -61,15 +61,12 @@ def send_metric():
     payload['metric_f'] = float(payload['metric_f'])
     payload['host'] = 'testhost'
 
+    print(payload)
+
 
     client.event(**payload)
 
   return jsonify(payload)
-
-
-    
-
-
 
 @app.route('/generate-config', methods=['POST'])
 def generate_config():

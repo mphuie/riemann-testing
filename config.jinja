@@ -1,0 +1,33 @@
+(require '[clj-http.client :as client]
+         '[cheshire.core :as json])
+
+(let [host "0.0.0.0"
+  iport 5555
+  wsPort 5556]
+  (tcp-server {:host host :port iport})
+  (ws-server  {:host host :port wsPort})
+)
+
+(instrumentation {:enabled? false})
+
+(defn alert [event & [options]]
+  (client/post "https://riemann-tester.firebaseio.com/alerts.json" {:form-params (merge event options) :content-type :json})
+)
+
+(let [index (default :ttl 120 (index))]
+
+
+  (streams
+    index)
+  
+  (streams
+    (where (not (state "expired"))
+      #(info %)
+    )
+    )
+
+  (streams
+    {{ clause }}
+  )
+
+)

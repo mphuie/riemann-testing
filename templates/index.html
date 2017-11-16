@@ -21,9 +21,6 @@
         mode: 'clojure'}" ng-model="config">
       </div></div>
       <div class="col-lg-4 col-md-4 col-sm-4">
-
-
-
         <button class="btn btn-default" ng-click="setCode(c)" ng-repeat="c in sampleConfigs">{{ c.name}}</button>
         <p>{{ displayedHelpText }}</p>
         </div>
@@ -35,8 +32,19 @@
       <pre>{{ saveOutput }}</pre>
       <button class="btn btn-success" ng-click="startRiemann()">Start/SIGHUP riemann with config</button>
 
-      <div class="panel panel-default">
-        <div class="panel-heading">Send metric</div>
+      <hr>
+      <uib-tabset>
+          <uib-tab heading="From graphite">
+              <div class="panel panel-default">
+                  <input type="text" class="form-control" ng-model="metricPath.path">
+                  <pre>{{  metricPath }}</pre>
+                  <button class="btn btn-primary" ng-click="lookupGraphiteMetric()">Get data</button>
+
+              </div>
+          </uib-tab>
+          <uib-tab heading="Manual entry">
+              <div class="panel panel-default">
+
         <div class="panel-body">
           <form ng-submit="sendMetric()">
             <div class="form-group">
@@ -55,6 +63,9 @@
           </form>
         </div>
       </div>
+          </uib-tab>
+      </uib-tabset>
+
       
       <div class="panel panel-default">
         <div class="panel-heading">Alerts</div>
@@ -62,7 +73,9 @@
           <button class="btn btn-warning pull-right" ng-click="clearAlerts()">Clear</button>
           <table class="table table-condensed table-striped">
             <tr ng-repeat="alert in alerts">
-              <td>{{ alert | json }}</td>
+              <td>{{ alert.service }}</td>
+              <td>{{ alert.metric }}</td>
+
             </tr>
           </table>
         </div>

@@ -1,8 +1,28 @@
 app = angular.module 'myapp', ['ui.ace', 'ui.bootstrap', 'firebase']
 
+
+
+
 app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
 
+  loopThroughMetrics = (metric, values) ->
+    i = 0
+    while i < values.length
+      # for each iteration console.log a word
+      # and make a pause after it
+      do (i) ->
+        setTimeout (->
+          console.log values[i]
+          $http.post '/send-metric', { service: metric, metric_f: values[i] }
+          return
+        ), 1000 * i
+        return
+      i++
+    return
+
   $scope.metric = {}
+
+  $scope.metricPath = {}
 
   ref = firebase.database().ref().child("alerts")
   $scope.alerts = $firebaseArray(ref)
@@ -52,4 +72,19 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray) ->
         $scope.saveOutput = resp.data.stdout
       , (resp) ->
         $scope.saveOutput = resp.data.stdout
+
+
+  $scope.lookupGraphiteMetric = ->
+    console.log $scope.metricPath
+
+    $http
+      .get "http://graphite.tableausandbox.com/render/?target=#{$scope.metricPath.path}&from=-10minutes&format=json"
+      .then (resp) ->
+        $scope.metricPath.results = resp.data[0].datapoints
+        values = _.map resp.data[0].datapoints, (i) ->
+          i[0]
+
+        console.log values
+
+        loopThroughMetrics($scope.metricPath.path, values)
 
