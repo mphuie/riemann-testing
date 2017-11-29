@@ -1,0 +1,30 @@
+.container
+
+    .panel.panel-default
+        .panel-heading
+            | Configs
+            a.btn.btn-primary.btn-xs.pull-right(ui-sref="home") Create new
+            .clearfix
+
+        .panel-body
+
+            table.table.table-striped.table-condensed
+                tr(ng-repeat="c in configs")
+                    td {{ c.description }}
+                    td {{ c.contact }}
+                    td
+                        pre {{ c.entry }}
+                    td
+                        button.btn.btn-xs.btn-danger(ng-click="deleteConfig(c.id)") Delete
+
+
+    .panel.panel-default
+        .panel-heading Build/deploy riemann config
+        .panel-body
+            button.btn.btn-success(ng-click="buildFullConfig()") Build riemann config
+            form
+                .form-group
+                    label Alert endpoint
+
+
+

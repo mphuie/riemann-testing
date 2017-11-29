@@ -1,0 +1,35 @@
+doctype html
+html(lang="en", ng-app="myapp")
+    head
+        link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/2.1.0/toaster.css")
+        style.
+            .ace_editor { height: 200px;}
+    body
+        toaster-container
+        div(ui-view)
+
+
+    script(src="/static/ace.js")
+    script(src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js")
+    script(src="/static/angular.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.6/angular-animate.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.3/angular-ui-router.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/2.1.0/toaster.js")
+    script(src="/static/ui-ace.min.js")
+    script(src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js")
+    script(src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js")
+
+    script.
+      var config = {
+        apiKey: "AIzaSyCLNvtkCvzBWjXGMxVF1W5B5sSyiWpMENY",
+        authDomain: "riemann-tester.firebaseapp.com",
+        databaseURL: "https://riemann-tester.firebaseio.com",
+        projectId: "riemann-tester",
+        storageBucket: "",
+        messagingSenderId: "872613186057"
+      };
+      firebase.initializeApp(config);
+    script(src="/static/app.js")

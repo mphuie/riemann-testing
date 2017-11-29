@@ -1,0 +1,16 @@
+//
+   Created by mhuie on 11/27/17.
+.container
+    h1 Riemann Builder
+    .alert.alert-info
+        | How to use this:
+        ol
+            li Write your config
+            li Validate your config
+            li Send test events to generate desired alerts
+
+
+    .row
+        .col-lg-8.col-md-8.col-sm-8
+            div(ui-ace="{ useWrapMode : true, theme: 'iplastic', $blockScrolling: 'Infinity', mode: 'clojure'}", ng-model="config")
+        .col-lg-4.col-md-4.col-sm-4
