@@ -65,9 +65,14 @@ def send_metric():
     if not 'ttl' in payload:
       payload['ttl'] = 60
 
-    payload['metric_f'] = float(payload['metric_f'])
+    if 'metric_f' in payload:
+      payload['metric_f'] = float(payload['metric_f'])
+    else:
+      payload['metric_f'] = 0
+
     payload['host'] = 'testhost'
 
+    print(payload)
     client.event(**payload)
 
   return jsonify(payload)

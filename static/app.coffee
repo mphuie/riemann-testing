@@ -37,8 +37,6 @@ app.controller 'ConfigCtrl', ($scope, $http, toaster) ->
         toaster.pop 'success', 'status', 'deleted!'
 
 
-
-
 app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
   
   $scope.metric = {}
@@ -65,7 +63,23 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
       i++
     return
 
-  $scope.metric = {}
+  loopThroughStates = (metric, values) ->
+    console.log values
+    i = 0
+    while i < values.length
+      do (i) ->
+        setTimeout (->
+          console.log metric
+          console.log values[i]
+          $scope.metricStatus = $scope.metricStatus + '.'
+          $http.post '/send-metric', { service: metric.service, metric_f: metric.metric_f, state: values[i], tags: metric.tags, riemannHost: metric.riemannHost }
+          return
+        ), 1000 * i
+        return
+      i++
+    return
+
+#  $scope.metric = { state: null, metric_f: 0 }
   $scope.metricPath = { path: 'qa01_online_10ay.cluster_health.cpu.usage.0001f-chsx01-tableausandbox-com' }
 
   ref = firebase.database().ref().child("alerts")
@@ -94,11 +108,17 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
 
     console.log $scope.metric
 
-    if $scope.metric.metric_f.indexOf(',') > -1
+    if $scope.metric.state and $scope.metric.state.indexOf(',') > -1
+      values = _.map $scope.metric.state.split(','), (i) ->
+        i
+      $scope.metricStatus = ''
+      loopThroughStates $scope.metric, values
+    else if $scope.metric.metric_f and $scope.metric.metric_f.indexOf(',') > -1
       values = _.map $scope.metric.metric_f.split(','), (i) ->
         parseInt(i)
       $scope.metricStatus = ''
       loopThroughMetrics $scope.metric, values
+
     else
       $http
         .post '/send-metric', $scope.metric
@@ -142,7 +162,8 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
           i[0]
 
         $scope.metricStatus = ''
-        loopThroughMetrics($scope.metricPath.path, values)
+        $scope.metricPath.service = $scope.metricPath.path
+        loopThroughMetrics($scope.metricPath, values)
 
 
   $scope.saveConfig = ->

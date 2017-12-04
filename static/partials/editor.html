@@ -1,14 +1,6 @@
 <div class="container">
-    <h1>Riemann builder</h1>
-    <div class="alert alert-info">
-        How to use this:
-        <ol>
-        <li>Write your config</li>
-        <li>Validate your config</li>
-        <li>Send test events to generate desired alerts</li>
-        </ol>
-    </div>
-
+    <h3>Riemann playground</h3>
+    
     <div class="row">
       <div class="col-lg-8 col-md-8 col-sm-8"><div ui-ace="{
         useWrapMode : true,
@@ -28,14 +20,7 @@
 
       <hr>
       <uib-tabset>
-          <uib-tab heading="From graphite">
-              <div class="panel panel-default">
-                  <input type="text" class="form-control" ng-model="metricPath.path">
-                  <pre>{{  metricPath.results }}</pre>
-                  <button class="btn btn-primary" ng-click="lookupGraphiteMetric()">Send last 10 datapoints</button>
 
-              </div>
-          </uib-tab>
           <uib-tab heading="Manual entry">
               <div class="panel panel-default">
 
@@ -69,6 +54,14 @@
           </form>
         </div>
       </div>
+          </uib-tab>
+                    <uib-tab heading="From graphite">
+              <div class="panel panel-default">
+                  <input type="text" class="form-control" ng-model="metricPath.path">
+                  <pre>{{  metricPath.results }}</pre>
+                  <button class="btn btn-primary" ng-click="lookupGraphiteMetric()">Send last 10 datapoints</button>
+
+              </div>
           </uib-tab>
       </uib-tabset>
 

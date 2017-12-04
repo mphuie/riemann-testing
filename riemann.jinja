@@ -10,24 +10,23 @@
 
 (instrumentation {:enabled? false})
 
+(periodically-expire 5)
+
 (defn alert [event & [options]]
-  (client/post "https://riemann-tester.firebaseio.com/alerts.json" {:form-params (merge event options) :content-type :json})
+  (client/post "http://events.hmp.tableausandbox.com/event" {:form-params (merge event options) :content-type :json})
 )
 
 (let [index (default :ttl 120 (index))]
 
-
   (streams
     index)
 
-  (streams
-    (where (not (state "expired"))
-      #(info %)
-    )
-    )
+  {% for config in configs %}
 
   (streams
-    {{ clause }}
+    {{ config.entry }}
   )
+
+  {% endfor %}
 
 )

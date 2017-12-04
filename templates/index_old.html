@@ -2,7 +2,7 @@
 <html lang="en" ng-app="myapp">
 <head>
   <meta charset="UTF-8">
-  <title>Riemann config builder</title>
+  <title>Riemann playground</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-toaster/2.1.0/toaster.css">
   <style>
@@ -13,16 +13,8 @@
   <toaster-container></toaster-container>
   {% raw %}
   <div class="container">
-    <h1>Riemann builder</h1>
-    <div class="alert alert-info">
-        How to use this:
-        <ol>
-        <li>Write your config</li>
-        <li>Validate your config</li>
-        <li>Send test events to generate desired alerts</li>
-        </ol>
-    </div>
-
+    <h1>Riemann playground</h1>
+   
     <div class="row">
       <div class="col-lg-8 col-md-8 col-sm-8"><div ui-ace="{
         useWrapMode : true,

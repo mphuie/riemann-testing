@@ -37,7 +37,7 @@
   });
 
   app.controller('MainCtrl', function($scope, $http, $firebaseArray, toaster) {
-    var loopThroughMetrics, ref;
+    var loopThroughMetrics, loopThroughStates, ref;
     $scope.metric = {};
     $scope.riemannHosts = ['localhost', 'riemann.hmp.tableausandbox.com', 'riemann.hmp.tableauprod.net'];
     $scope.metricStatus = '';
@@ -62,7 +62,28 @@
         i++;
       }
     };
-    $scope.metric = {};
+    loopThroughStates = function(metric, values) {
+      var i;
+      console.log(values);
+      i = 0;
+      while (i < values.length) {
+        (function(i) {
+          setTimeout((function() {
+            console.log(metric);
+            console.log(values[i]);
+            $scope.metricStatus = $scope.metricStatus + '.';
+            $http.post('/send-metric', {
+              service: metric.service,
+              metric_f: metric.metric_f,
+              state: values[i],
+              tags: metric.tags,
+              riemannHost: metric.riemannHost
+            });
+          }), 1000 * i);
+        })(i);
+        i++;
+      }
+    };
     $scope.metricPath = {
       path: 'qa01_online_10ay.cluster_health.cpu.usage.0001f-chsx01-tableausandbox-com'
     };
@@ -85,7 +106,13 @@
       var values;
       $scope.metric.riemannHost = $scope.riemannHosts[$scope.metric.riemannHost];
       console.log($scope.metric);
-      if ($scope.metric.metric_f.indexOf(',') > -1) {
+      if ($scope.metric.state && $scope.metric.state.indexOf(',') > -1) {
+        values = _.map($scope.metric.state.split(','), function(i) {
+          return i;
+        });
+        $scope.metricStatus = '';
+        return loopThroughStates($scope.metric, values);
+      } else if ($scope.metric.metric_f && $scope.metric.metric_f.indexOf(',') > -1) {
         values = _.map($scope.metric.metric_f.split(','), function(i) {
           return parseInt(i);
         });
@@ -129,7 +156,8 @@
           return i[0];
         });
         $scope.metricStatus = '';
-        return loopThroughMetrics($scope.metricPath.path, values);
+        $scope.metricPath.service = $scope.metricPath.path;
+        return loopThroughMetrics($scope.metricPath, values);
       });
     };
     return $scope.saveConfig = function() {
