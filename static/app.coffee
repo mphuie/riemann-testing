@@ -177,7 +177,6 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster, username) ->
   $scope.saveConfig = ->
     payload = {
       entry: $scope.config
-      contact: $scope.newConfig.contact
       description: $scope.newConfig.description
     }
 

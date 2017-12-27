@@ -40,12 +40,22 @@ app.secret_key = 'wqpdmqevoinwdiuahsd;wokd'
 
 available_ports = list(range(5001,5090))
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   if request.method == 'GET':
     return render_template('login.html')
   if request.method == 'POST':
     session['username'] = request.form['username']
+
+    for c in client.containers.list():
+      port = int(c.attrs['NetworkSettings']['Ports']['5555/tcp'][0]['HostPort'])
+      try:
+        available_ports.remove(port)
+      except ValueError:
+        pass
+
     session['riemann_port'] = available_ports.pop()
     return redirect(url_for('hello'))
 
@@ -58,6 +68,9 @@ def logout():
 def hello():
   if not 'username' in session:
     return redirect(url_for('login'))
+
+  print(session['username'])
+  print(session['riemann_port'])
 
   return render_template('index.html', username=session['username'])
 
@@ -176,7 +189,7 @@ def delete_config_entry(id):
 def save_config_entry():
   print(request.json)
 
-  Config.create(**request.json)
+  Config.create(**request.json, contact=session['username'])
   return 'ok'
 
 if __name__ == '__main__':

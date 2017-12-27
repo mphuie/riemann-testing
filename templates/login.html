@@ -2,9 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>Set username</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif;
+        line-height: 1.3em; }
+    </style>
 </head>
 <body>
-$END$
+    <p>I need your username before you can continue!</p>
+
+    <p>Note: this tool creates docker containers that allow you to test your riemann config.  Containers are destroyed
+    45 minutes after creation. (First time you try to validate a config)</p>
+
+    <form action="/login" method="POST">
+        <input type="text" placeholder="username" name="username">
+        <input type="submit">
+    </form>
 </body>
 </html>
