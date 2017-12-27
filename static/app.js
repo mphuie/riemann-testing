@@ -174,7 +174,6 @@
       var payload;
       payload = {
         entry: $scope.config,
-        contact: $scope.newConfig.contact,
         description: $scope.newConfig.description
       };
       return $http.post('/save-config-entry', payload).then(function(resp) {
