@@ -1,46 +1,92 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, session, url_for
 import jinja2
 import docker
 from riemann_client.transport import TCPTransport
 import riemann_client.client
 from models import Config
 import requests
+from apscheduler.schedulers.background import BackgroundScheduler
+import arrow
+
+def cleanup():
+  now = arrow.utcnow()
+  for container in client.containers.list():
+    image = container.attrs['Config']['Image']
+
+    if image == 'mphuie/riemann':
+      started =  arrow.get(container.attrs['State']['StartedAt'])
+      age = int((now-started).total_seconds())
+      image = container.attrs['Config']['Image']
+      print(image)
+      print('Found container that has been up for {0} seconds'.format(age))
+
+      if age > 1200:
+        print('container found older than 20 minutes, removing!')
+        container.stop()
+        container.remove()
+
+
+scheduler = BackgroundScheduler()
+job = scheduler.add_job(cleanup, 'interval', minutes=45)
+
+scheduler.start()
+
 
 Config.create_table(fail_silently=True)
 
 client = docker.from_env()
 app = Flask(__name__)
+app.secret_key = 'wqpdmqevoinwdiuahsd;wokd'
 
-volume_bindings = {
-  '/Users/mhuie/ResilioSync/learning/riemann-testing/test.config': {
-    'bind': '/app/etc/riemann.config',
-    'mode': 'rw',
-  }
-}
+available_ports = list(range(5001,5090))
 
-port_bindings = {
-  '5555': '5555'
-}
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+  if request.method == 'GET':
+    return render_template('login.html')
+  if request.method == 'POST':
+    session['username'] = request.form['username']
+    session['riemann_port'] = available_ports.pop()
+    return redirect(url_for('hello'))
+
+@app.route('/logout')
+def logout():
+  session.pop('username', None)
+  return 'ok'
 
 @app.route("/")
 def hello():
-  return render_template('index.html')
+  if not 'username' in session:
+    return redirect(url_for('login'))
+
+  return render_template('index.html', username=session['username'])
 
 @app.route('/start-riemann')
 def start_riemann():
   for container in client.containers.list():
-    if container.attrs['Config']['Image'] == 'mphuie/riemann':
+    if container.attrs['Name'] == '/' + session['username']:
       container.exec_run("kill -HUP 1")
-      return "riemann container running, sending HUP!"
-  
-  client.containers.run("mphuie/riemann", volumes=volume_bindings, detach=True, ports=port_bindings)
-  return "riemann container doesnt exist, starting!!"
+      return jsonify({"port": session['riemann_port']})
+
+  config_path = '/Users/mhuie/ResilioSync/learning/riemann-testing/{0}.config'.format(session['username'])
+
+  volume_bindings = {
+    config_path: {
+      'bind': '/app/etc/riemann.config',
+      'mode': 'rw',
+    }
+  }
+
+  port_bindings = {
+    '5555': int(session['riemann_port'])
+  }
+  client.containers.run("mphuie/riemann", name=session['username'], volumes=volume_bindings, detach=True, ports=port_bindings)
+  return jsonify({ "port": session['riemann_port'] })
 
 @app.route('/containers')
 def list_containers():
   containers = []
   for container in client.containers.list():
-
     containers.append({
       'id': container.id,
       'name': container.name,
@@ -52,11 +98,9 @@ def list_containers():
 def send_metric():
   print(request.json)
 
-  riemann_host = request.json.pop('riemannHost', 'localhost')
-
-
-  print('sending to {0}'.format(riemann_host))
-  with riemann_client.client.Client(TCPTransport(riemann_host, 5555)) as client:
+  print(session['username'])
+  print(session['riemann_port'])
+  with riemann_client.client.Client(TCPTransport('0.0.0.0', int(session['riemann_port']))) as client:
     payload = request.json
 
     if 'tags' in request.json:
@@ -74,17 +118,28 @@ def send_metric():
 
     print(payload)
     client.event(**payload)
+    # client.event(service="one", metric_f=0.1)
 
   return jsonify(payload)
 
 @app.route('/generate-test-config', methods=['POST'])
 def generate_test_config():
-  with open('test.config', 'w') as fh:
+  with open('{0}.config'.format(session['username']), 'w') as fh:
     output = jinja2.Environment(
         loader=jinja2.FileSystemLoader('./')
-    ).get_template('config.jinja').render({ 'clause': request.json['config']})
+    ).get_template('config.jinja').render({ 'clause': request.json['config'], 'username': session['username'] })
 
     fh.write(output)
+
+  config_path = '/Users/mhuie/ResilioSync/learning/riemann-testing/{0}.config'.format(session['username'])
+
+  print(config_path)
+  volume_bindings = {
+    config_path: {
+      'bind': '/app/etc/riemann.config',
+      'mode': 'rw',
+    }
+  }
 
   try:
     docker_stdout = client.containers.run("mphuie/riemann-test", volumes=volume_bindings)

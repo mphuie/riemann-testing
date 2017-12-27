@@ -1,5 +1,10 @@
 app = angular.module 'myapp', ['ui.router', 'ui.ace', 'ui.bootstrap', 'firebase', 'toaster']
 
+app.filter 'stripFirebase', ->
+  (value) ->
+    delete value['$id']
+    delete value['$priority']
+    value
 
 app.config ['$stateProvider', '$urlRouterProvider', ($stateProvider, $urlRouterProvider) ->
   $urlRouterProvider.otherwise '/'
@@ -37,7 +42,9 @@ app.controller 'ConfigCtrl', ($scope, $http, toaster) ->
         toaster.pop 'success', 'status', 'deleted!'
 
 
-app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
+app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster, username) ->
+
+  $scope.username = username
   
   $scope.metric = {}
 
@@ -82,7 +89,7 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
 #  $scope.metric = { state: null, metric_f: 0 }
   $scope.metricPath = { path: 'qa01_online_10ay.cluster_health.cpu.usage.0001f-chsx01-tableausandbox-com' }
 
-  ref = firebase.database().ref().child("alerts")
+  ref = firebase.database().ref().child(username)
   $scope.alerts = $firebaseArray(ref)
 
   $http
@@ -128,7 +135,7 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
           toaster.pop 'error', 'riemann', 'error in metric!'
 
   $scope.clearAlerts = ->
-    $http.delete 'https://riemann-tester.firebaseio.com/alerts.json'
+    $http.delete "https://riemann-tester.firebaseio.com/#{username}.json"
 
   $scope.startRiemann = ->
     toaster.pop 'success', 'riemann', 'starting/restarting riemann...'
@@ -145,8 +152,9 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster) ->
       .then (resp) ->
         $scope.saveOutput = resp.data.stdout
         $http.get '/start-riemann'
-          .then ->
+          .then (resp) ->
             toaster.pop 'success', 'riemann', 'good, restarting riemann!...'
+            $scope.riemannPort = resp.data.port
       , (resp) ->
         $scope.saveOutput = resp.data.stdout
         toaster.pop 'error', 'riemann', 'config does not validate!'

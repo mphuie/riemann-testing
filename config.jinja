@@ -11,7 +11,7 @@
 (instrumentation {:enabled? false})
 
 (defn alert [event & [options]]
-  (client/post "https://riemann-tester.firebaseio.com/alerts.json" {:form-params (merge event options) :content-type :json})
+  (client/post "https://riemann-tester.firebaseio.com/{{ username }}.json" {:form-params (merge event options) :content-type :json})
 )
 
 (let [index (default :ttl 120 (index))]

@@ -4,6 +4,14 @@
 
   app = angular.module('myapp', ['ui.router', 'ui.ace', 'ui.bootstrap', 'firebase', 'toaster']);
 
+  app.filter('stripFirebase', function() {
+    return function(value) {
+      delete value['$id'];
+      delete value['$priority'];
+      return value;
+    };
+  });
+
   app.config([
     '$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
       $urlRouterProvider.otherwise('/');
@@ -36,8 +44,9 @@
     };
   });
 
-  app.controller('MainCtrl', function($scope, $http, $firebaseArray, toaster) {
+  app.controller('MainCtrl', function($scope, $http, $firebaseArray, toaster, username) {
     var loopThroughMetrics, loopThroughStates, ref;
+    $scope.username = username;
     $scope.metric = {};
     $scope.riemannHosts = ['localhost', 'riemann.hmp.tableausandbox.com', 'riemann.hmp.tableauprod.net'];
     $scope.metricStatus = '';
@@ -87,7 +96,7 @@
     $scope.metricPath = {
       path: 'qa01_online_10ay.cluster_health.cpu.usage.0001f-chsx01-tableausandbox-com'
     };
-    ref = firebase.database().ref().child("alerts");
+    ref = firebase.database().ref().child(username);
     $scope.alerts = $firebaseArray(ref);
     $http.get('/static/samples.json').then(function(resp) {
       return $scope.sampleConfigs = resp.data;
@@ -127,7 +136,7 @@
       }
     };
     $scope.clearAlerts = function() {
-      return $http["delete"]('https://riemann-tester.firebaseio.com/alerts.json');
+      return $http["delete"]("https://riemann-tester.firebaseio.com/" + username + ".json");
     };
     $scope.startRiemann = function() {
       toaster.pop('success', 'riemann', 'starting/restarting riemann...');
@@ -140,8 +149,9 @@
         config: $scope.config
       }).then(function(resp) {
         $scope.saveOutput = resp.data.stdout;
-        return $http.get('/start-riemann').then(function() {
-          return toaster.pop('success', 'riemann', 'good, restarting riemann!...');
+        return $http.get('/start-riemann').then(function(resp) {
+          toaster.pop('success', 'riemann', 'good, restarting riemann!...');
+          return $scope.riemannPort = resp.data.port;
         });
       }, function(resp) {
         $scope.saveOutput = resp.data.stdout;
