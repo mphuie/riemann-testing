@@ -7,6 +7,17 @@ html(lang="en", ng-app="myapp")
             .ace_editor { height: 200px;}
     body
         toaster-container
+        nav.navbar.navbar-default.navigation-clean
+            .container
+                .navbar-header
+                    a.navbar-brand.navbar-link(href="/") Riemann Config Builder
+                #navcol.collapse.navbar-collapse
+                    ul.nav.navbar-nav.navbar-right
+                        li
+                            a(ui-sref="home", ui-sref-active="active") Builder
+                        li
+                            a(ui-sref="configs", ui-sref-active="active") Configs
+
         div(ui-view)
 
 

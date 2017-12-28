@@ -42,7 +42,6 @@ app.secret_key = 'wqpdmqevoinwdiuahsd;wokd'
 available_ports = list(range(5001,5090))
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   if request.method == 'GET':
