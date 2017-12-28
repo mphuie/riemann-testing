@@ -67,7 +67,7 @@ def login():
 @app.route('/logout')
 def logout():
   session.pop('username', None)
-  return 'ok'
+  return redirect(url_for('login'))
 
 @app.route("/")
 def hello():
