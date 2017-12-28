@@ -19,12 +19,18 @@
 
 
     .panel.panel-default
-        .panel-heading Build/deploy riemann config
+        .panel-heading Build riemann config
         .panel-body
+
+            p
+                | This will build a full riemann config and deploy it to :5555.
+                | Any alert call will send events to
+                = " "
+                a(href="http://events.hmp.tableausandbox.com/#/") events.hmp.tableausandbox
+                = ". "
+                | You can create alerting rules there.
             button.btn.btn-success(ng-click="buildFullConfig()") Build riemann config
-            form
-                .form-group
-                    label Alert endpoint
+
 
 
 
