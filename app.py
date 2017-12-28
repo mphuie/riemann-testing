@@ -8,9 +8,12 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 import arrow
 import os
+import subprocess
 
 def cleanup():
   now = arrow.utcnow()
+
+  subprocess.run('docker ps -aq --no-trunc | xargs docker rm', shell=True)
   for container in client.containers.list():
     image = container.attrs['Config']['Image']
 
@@ -28,7 +31,7 @@ def cleanup():
 
 
 scheduler = BackgroundScheduler()
-job = scheduler.add_job(cleanup, 'interval', minutes=45)
+job = scheduler.add_job(cleanup, 'interval', minutes=5)
 
 scheduler.start()
 
