@@ -78,6 +78,7 @@ def hello():
 def start_riemann():
   for container in client.containers.list():
     if container.attrs['Name'] == '/' + session['username']:
+      print('found existing container, sending HUP!!!!!')
       container.exec_run("kill -HUP 1")
       return jsonify({"port": session['riemann_port']})
 
