@@ -172,7 +172,12 @@ def generate_full_config():
 
     fh.write(output)
 
-  resp = requests.post('http://hmp.tableausandbox.com:8000/riemann-config', json=configs)
+
+  for container in client.containers.list():
+    print(container.attrs['Name'])
+    if container.attrs['Name'] == '/riemann-root':
+      container.exec_run("kill -HUP 1")
+      return jsonify({"resp": "restarting riemann on port 5555..."})
   return 'ok'
 
 
