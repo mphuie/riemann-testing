@@ -85,6 +85,8 @@ def start_riemann():
     if container.attrs['Name'] == '/' + session['username']:
       print('found existing container, sending HUP!!!!!')
       container.exec_run("kill -HUP 1")
+      port = int(container.attrs['NetworkSettings']['Ports']['5555/tcp'][0]['HostPort'])
+      session['riemann_port'] = port
       return jsonify({"port": session['riemann_port']})
 
   config_path = '{0}/{1}.config'.format(os.getcwd(), session['username'])
