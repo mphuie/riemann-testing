@@ -53,11 +53,13 @@ def login():
     session['username'] = request.form['username']
 
     for c in client.containers.list():
-      port = int(c.attrs['NetworkSettings']['Ports']['5555/tcp'][0]['HostPort'])
-      try:
-        available_ports.remove(port)
-      except ValueError:
-        pass
+      image = c.attrs['Config']['Image']
+      if image == 'mphuie/riemann':
+        port = int(c.attrs['NetworkSettings']['Ports']['5555/tcp'][0]['HostPort'])
+        try:
+          available_ports.remove(port)
+        except ValueError:
+          pass
 
     session['riemann_port'] = available_ports.pop()
     return redirect(url_for('hello'))
