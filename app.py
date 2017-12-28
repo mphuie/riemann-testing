@@ -7,6 +7,7 @@ from models import Config
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 import arrow
+import os
 
 def cleanup():
   now = arrow.utcnow()
@@ -81,7 +82,7 @@ def start_riemann():
       container.exec_run("kill -HUP 1")
       return jsonify({"port": session['riemann_port']})
 
-  config_path = '/Users/mhuie/ResilioSync/learning/riemann-testing/{0}.config'.format(session['username'])
+  config_path = '{0}/{1}.config'.format(os.getcwd(), session['username'])
 
   volume_bindings = {
     config_path: {
@@ -144,7 +145,8 @@ def generate_test_config():
 
     fh.write(output)
 
-  config_path = '/Users/mhuie/ResilioSync/learning/riemann-testing/{0}.config'.format(session['username'])
+
+  config_path = '{0}/{1}.config'.format(os.getcwd(), session['username'])
 
   print(config_path)
   volume_bindings = {
