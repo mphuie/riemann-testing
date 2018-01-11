@@ -1,0 +1,75 @@
+.container
+    span.pull-right
+        | Logged in as
+        = ' '
+        strong mhuie@tableau.com (HeMP)
+    .clearfix
+    .panel.panel-default
+        .panel-heading
+            h3.panel-title Rule Builder
+        .panel-body
+            form.form-horizontal
+
+                .form-group
+                    .col-md-2
+                        label.control-label Expression
+                    .col-md-4
+                        input.form-control(placeholder="metric/service", ng-model="newRule.service")
+                        input(type="checkbox", ng-model="newRule.regex")
+                        = ' '
+                        | regex?
+                    .col-md-1
+                        select.form-control(ng-model="newRule.expression")
+                            option >
+                            option <
+                    .col-md-2
+                        input.form-control(placeholder="value", ng-model="newRule.value")
+
+
+                .form-group
+                    .col-md-2
+                        label.control-label Trigger
+                    .col-md-8
+                        input(type="radio", ng-model="newRule.triggerType", value="immediately")
+                        = " "
+                        | Immediately
+                        br
+                        input(type="radio", ng-model="newRule.triggerType", value="sustained")
+                        = " "
+                        | Sustained/stable for
+                        input(ng-model="newRule.sustainedSeconds")
+                        | seconds
+
+                //.form-group
+                //    .col-md-2
+                //        label.control-label Alerting
+                //
+                //    .col-md-6
+                //        input(ng-model="newRule.throttleTimes", placeholder="send X alerts")
+                //        input(ng-model="newRule.throttleDuration", placeholder="every X seconds")
+                //        p.help-block A new alert will be generated for every matched metric past the sustained time. Use this to throttle additional alerts.
+
+
+            //pre {{ newRule | json }}
+
+    .panel.panel-default
+        .panel-heading
+            h3.panel-title Notification Builder
+        .panel-body
+            uib-tabset
+                uib-tab(heading="Simple")
+                    //.alert.alert-info
+                    //    | This will only match the rule specified above.  If you wish to define a Notification rule that will
+                    //    | match multiple rules, use the Custom option
+
+                    h4 Then notify via...
+                    form.form-horizontal
+                        .form-group
+                            .col-md-8
+                                select.form-control(ng-model="newMethod.selected", ng-options="n as n.name for n in notificationOptions", ng-change="selectMethod()")
+                                textarea.form-control(rows="10", ng-model="newMethod.configText", style="font-family:monospace;")
+
+                //uib-tab(heading="Custom")
+
+    button.btn.btn-primary.btn-lg(ng-click="createThresholdRule()") Create rule and notification
+
