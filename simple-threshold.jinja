@@ -1,0 +1,17 @@
+(where (service {%if regex%}#{%endif%}"{{ service }}")
+    (let [match #({{expression}} (:metric %) {{value}})]
+        (stable {{sustainedSeconds}} match
+            (changed match {:init false}
+                #(alert % {:configId {{ configId }} :team "{{ team }}"})))
+    )
+)
+
+
+
+
+disk.c.used_percent > 90 for 600 seconds
+cluster_health_.disk.c.used_percent
+cluster_health_cpu.usage > 90 for 300 seconds
+cluster_health*.get-health-check-result.exception-one-minute-rate
+database.extracts.orphaned > X
+redis-token-bucket.info.connected_clients < 3

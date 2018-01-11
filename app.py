@@ -118,7 +118,6 @@ def list_containers():
 @app.route('/send-metric', methods=['POST'])
 def send_metric():
   print(request.json)
-
   print(session['username'])
   print(session['riemann_port'])
   with riemann_client.client.Client(TCPTransport('0.0.0.0', int(session['riemann_port']))) as client:
@@ -142,6 +141,11 @@ def send_metric():
     # client.event(service="one", metric_f=0.1)
 
   return jsonify(payload)
+
+
+# @app.route('/test-config', methods=['GET'])
+# def send_test_config():
+#   with open('{0}.config'.format(session['username']), 'w') as fh:
 
 @app.route('/generate-test-config', methods=['POST'])
 def generate_test_config():
@@ -173,7 +177,7 @@ def generate_test_config():
 @app.route('/generate-full-config', methods=['POST'])
 def generate_full_config():
   configs = [c.to_dict() for c in Config.select()]
-  with open('riemann.config', 'w') as fh:
+  with open('mhuie.config', 'w') as fh:
     output = jinja2.Environment(
         loader=jinja2.FileSystemLoader('./')
     ).get_template('riemann.jinja').render({ 'configs': configs })
@@ -183,7 +187,7 @@ def generate_full_config():
 
   for container in client.containers.list():
     print(container.attrs['Name'])
-    if container.attrs['Name'] == '/riemann-root':
+    if container.attrs['Name'] == '/mhuie':
       container.exec_run("kill -HUP 1")
       return jsonify({"resp": "restarting riemann on port 5555..."})
   return 'ok'
@@ -205,6 +209,28 @@ def save_config_entry():
 
   Config.create(**request.json, contact=session['username'])
   return 'ok'
+
+@app.route('/add-threshold-rule', methods=['POST'])
+def add_threshold_rule():
+  print(request.json)
+
+
+  c = Config.create(description="If '{0}' {1} {2} for {3} seconds".format(
+    request.json['service'],
+    request.json['expression'],
+    request.json['value'],
+    request.json['sustainedSeconds']
+  ),
+    contact="mhuie@tableau.com")
+
+  output = jinja2.Environment(
+    loader=jinja2.FileSystemLoader('./')
+  ).get_template('simple-threshold.jinja').render(**request.json, configId=c.id, team='HeMP')
+
+  c.entry = output
+  c.save()
+
+  return jsonify(c.to_dict())
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)

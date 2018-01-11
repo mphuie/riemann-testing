@@ -19,6 +19,11 @@ app.config ['$stateProvider', '$urlRouterProvider', ($stateProvider, $urlRouterP
       templateUrl: '/static/partials/configs.html'
       controller: 'ConfigCtrl'
     }
+    .state 'builder', {
+      url: '/builder'
+      templateUrl: '/static/partials/builder.html'
+      controller: 'BuilderCtrl'
+    }
 ]
 
 app.controller 'ConfigCtrl', ($scope, $http, toaster) ->
@@ -184,3 +189,105 @@ app.controller 'MainCtrl', ($scope, $http, $firebaseArray, toaster, username) ->
       .post '/save-config-entry', payload
       .then (resp) ->
         console.log payload
+
+
+app.controller 'BuilderCtrl', ($scope, $http, $filter) ->
+  console.log 'hi from builder!'
+  $scope.newMethod = {}
+  $scope.newRule = {}
+
+
+  $scope.selectMethod = ->
+    $scope.newMethod.configText = $filter('json')($scope.newMethod.selected.config)
+
+  $scope.notificationOptions = [
+    {
+      name : 'Pager Duty'
+      function: 'pagerduty'
+      config: {
+        routing_key: '940563ab8db246a59e0782677f837e34'
+        event_action: 'trigger'
+        payload: {
+          summary: 'SUMMARY -> {{ description }} / {{ service }} ({{ host}} ) '
+          source: '{{ host }}'
+          severity: 'critical'
+        }
+      }
+    },
+    {
+      name: 'Hipchat Direct Message'
+      function: 'hipchatdm'
+      config: {
+        api_token: 'ktpT6tNErbhXjviQqFOPPP7XCz1FtUoi6obR9Py9'
+        notify_email: 'mhuie@tableau.com'
+        payload: {
+          message: 'test private message'
+          notify: false
+          message_format: 'html'
+        }
+      }
+    },
+    {
+      name: 'Hipchat Room notification'
+      function: 'hipchatroom'
+      config: {
+        api_token: 'ktpT6tNErbhXjviQqFOPPP7XCz1FtUoi6obR9Py9'
+        notify_room_id: 4063746
+        payload: {
+          message: 'test room notification'
+          message_format: 'html'
+          from: 'test title'
+          color: 'purple'
+          notify: false
+        }
+      }
+    },
+    {
+      name: 'Email'
+      function: 'email'
+      config: {
+        smtpHost: 'mailrelay.tableausandbox.com'
+        port: 25
+        secure: false
+        payload: {
+          from: 'no-reply@tableausoftware.com'
+          to: 'mhuie@tableau.com'
+          subject: 'test subject'
+          text: 'hello world'
+          html: '<b>Hello world!</b>'
+        }
+      }
+    }
+
+  $scope.createThresholdRule = ->
+    console.log $scope.newMethod
+    $http
+      .post '/add-threshold-rule', $scope.newRule
+      .then (resp) ->
+        console.log(resp.data)
+
+        ruleId = resp.data.id
+
+        payload = {
+          config: JSON.parse($scope.newMethod.configText)
+          function: $scope.newMethod.selected.function
+          name: 'Notification for Config id ' + ruleId
+        }
+
+        $http
+          .post 'http://events.hmp.tableausandbox.com/notification', payload
+
+
+        $http
+          .post 'http://events.hmp.tableausandbox.com/rules', [{
+            path: 'configId'
+            type: 'equals'
+            value: ruleId
+          }]
+
+
+
+
+
+  ]
+

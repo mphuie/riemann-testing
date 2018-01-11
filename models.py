@@ -10,7 +10,7 @@ class BaseModel(Model):
 class Config(BaseModel):
   contact = CharField(null=True)
   description = CharField(null=True)
-  entry = CharField()
+  entry = CharField(null=True)
 
   def to_dict(self):
     r = {}
